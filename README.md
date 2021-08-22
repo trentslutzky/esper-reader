@@ -1,5 +1,5 @@
 # esper-reader
-curses-based Command line audiobook player programmed in python.
+Curses-based command line audiobook player programmed in python.
 
 ## features
 - Save position in audiobook
