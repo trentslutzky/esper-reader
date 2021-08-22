@@ -1,0 +1,5 @@
+python
+mpv
+python-mpv
+kivy
+
