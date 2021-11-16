@@ -9,7 +9,7 @@ Curses-based command line audiobook player programmed in python.
 ##
 Not packaged at all yet. To use, clone repo and use:
 ```sh
-$ python esper_ab <path/to/audiobook>
+$ ./esper_ab <path/to/audiobook>
 ```
 ##
 ## Screenshot
