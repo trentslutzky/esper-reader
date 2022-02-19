@@ -35,10 +35,23 @@ curses.mousemask(1)
 KEY_SPACE = ord(' ')
 KEY_P = ord('p')
 KEY_Q = ord('q')
+KEY_U = ord('u')
+KEY_D = ord('d')
 
 curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
 curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
 curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
+
+# constants 
+MIN_SPEED = 0.5
+MAX_SPEED = 2
+SPEED_INCREMENT = 0.1
+
+MIN_VOLUME = 0
+MAX_VOLUME = 150
+VOLUME_INCREMENT = 10
+
+TIME_INCREMENT = 15000 #milliseconds
 
 def generate_progress_bar(current,total):
     pass
@@ -95,6 +108,7 @@ def main(w):
 
     w.nodelay(True)
     speed = 1
+    volume = 100
     while True:
         tag = TinyTag.get(file_path)
         file_str = os.path.basename(file_path)
@@ -127,11 +141,14 @@ def main(w):
             w.addstr(2,4,progress_bar)
             w.addstr(2,width-10,'▎')
             
+            playing_string = ''
             if f.is_playing():
-                w.addstr(height-3,4,'SPACE : pause  |  q : exit  |  RIGHT : +15 sec  |  LEFT : -15 sec')
+                playing_string = 'pause'
             else:
+                playing_string = 'play '
                 w.addstr(2,int(width/2)-6,'   PAUSED   ')
-                w.addstr(height-3,4,'SPACE : play   |  q : exit  |  RIGHT : +15 sec  |  LEFT : -15 sec')
+
+            w.addstr(height-3,4,'SPACE : '+playing_string+' |  q : exit  |  RIGHT : +15 sec  |  LEFT : -15 sec | VOLUME inc/dec: UP ARROW/DOWN ARROW ')
 
             w.addstr(6,4,'Listening to',curses.A_BOLD+curses.color_pair(1))
             if tag.title:
@@ -149,27 +166,47 @@ def main(w):
             w.addstr(4,7,millis_to_timestr(current_time_ms) + 
                          ' / '+
                          millis_to_timestr(total_time_ms) + 
-                         ' Speed: ' + str(round(speed,1)))
+                         ' Speed: ' + 
+                         str(round(speed,1))+
+                         ' Volume: ' + 
+                         str(round(volume,1))
+                         )
 
             # get keys and do thingh
             char = w.getch()
 
-            if speed < 0.5:
-                speed = 0.5
+            if speed < MIN_SPEED:
+                speed = MIN_SPEED
+            if speed > MAX_SPEED:
+                speed = MAX_SPEED
             f.set_rate(speed)
+
+            if speed < MIN_VOLUME:
+                volume = MIN_VOLUME
+            if volume > MAX_VOLUME:
+                volume = MAX_VOLUME
+            f.audio_set_volume(volume)
+
 
             if char == KEY_SPACE:
                 f.pause()
+
             elif char == curses.KEY_RIGHT:
-                f.set_time(current_time_ms+15000)
+                f.set_time(current_time_ms+TIME_INCREMENT)
                 w.addstr(4,5,'')
             elif char == curses.KEY_LEFT:
-                f.set_time(current_time_ms-15000)
+                f.set_time(current_time_ms-TIME_INCREMENT)
                 w.addstr(4,5,'')
+
+            elif char == KEY_U:
+                speed = speed + SPEED_INCREMENT
+            elif char == KEY_D:
+                speed = speed - SPEED_INCREMENT
+
             elif char == curses.KEY_UP:
-                speed = speed + 0.1
+                volume = volume + VOLUME_INCREMENT
             elif char == curses.KEY_DOWN:
-                speed = speed - 0.1
+                volume = volume - VOLUME_INCREMENT
             elif char == KEY_Q:
                 running = False
             elif char == curses.KEY_MOUSE:
