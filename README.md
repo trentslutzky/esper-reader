@@ -7,7 +7,7 @@ Curses-based command line audiobook player.
 - Forward and backward 15 seconds
 
 ##
-Not packaged at all yet. To use, clone repo and use:
+usage:
 ```sh
 $ ./esper_ab <path/to/audiobook>
 ```
